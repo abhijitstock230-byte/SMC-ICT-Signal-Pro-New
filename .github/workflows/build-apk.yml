@@ -29,7 +29,16 @@ jobs:
       - name: Extract project ZIP
         run: |
           unzip -q SMC_ICT_Final_Project.zip -d project
-          PROJECT_DIR=$(dirname "$(find project -name settings.gradle -print -quit)")
+
+          SETTINGS_FILE=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)
+
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "ERROR: settings.gradle or settings.gradle.kts not found"
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
+          echo "Project directory: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
 
       - name: Build APK
@@ -40,5 +49,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: SMC-ICT-Signal-Pro-APK
+          name: SMC-ICT-Signal-Pro-NEW-APK
           path: project/**/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
